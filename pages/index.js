@@ -4,6 +4,9 @@ import Banner from '../components/banner';
 import styles from '../styles/Home.module.css';
 //styles file is imported as an object containing the styled components
 
+import Card from '../components/card';
+
+import coffeeStores from '../data/coffee-stores.json';
 
 export default function Home() {
 
@@ -30,6 +33,19 @@ export default function Home() {
             alt='coffee image' 
             width={700} height={400} 
           />
+        </div>
+        <div className={styles.cardLayout}>
+          {coffeeStores.map( (coffeeStore) => {
+            return (
+              <Card 
+                key={coffeeStore.id}
+                name={coffeeStore.name} 
+                imgUrl={coffeeStore.imgUrl}
+                href={`/coffee-store/${coffeeStore.id}`}
+                className={styles.card}
+              />
+            );
+          })}
         </div>
       </main>
 
