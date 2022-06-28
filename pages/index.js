@@ -7,6 +7,12 @@ import styles from '../styles/Home.module.css';
 import Card from '../components/card';
 import coffeeStoresData from '../data/coffee-stores.json';
 
+// ServerSideRendered() is syntax for a serverside render
+// getServerSideProps() to fetch then can use data as a prop
+
+// This function gets called at build time on server-side.
+// It won't be called on client-side, so you can even do
+// direct database querys.
 export async function getStaticProps(context) {
 
   console.log("getStaticProps trigger");

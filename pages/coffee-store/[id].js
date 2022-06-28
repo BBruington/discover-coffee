@@ -27,31 +27,42 @@ export function getStaticPaths() {
       { params: { id: '0' } }, 
       { params: { id: '1' } },
     ],
-    fallback: false,
+    fallback: true,
   };
 }
 
 const CoffeeStore = (props) => {
-    const router = useRouter();
-    const {coffeeStore} = props;
+  const router = useRouter();
+  const {coffeeStore} = props;
 
-    console.log('router', router);
-    console.log('props', props);
+  console.log('router', router);
+
+// Does route exist in getStaticPaths? If not, return Loading...
+// Then, does route exist in the data? show route if it does,
+// show error if not. //fallback: false auto goes to error
+
+  if(router.isFallback) {
+    return (
+      <div>Loading...</div> 
+    )
+  };
+
+  console.log('props', props);
 
     
-    return (
-        <div>
-            Coffee Store Page {router.query.id}
-            <Link href="/">
-                <a>Back to home</a>
-            </Link>
-            <Link href="/coffee-store/dynamic">
-                <a>Go to page dynamic</a>
-            </Link>
-            <p>{coffeeStore.address}</p>
-            <p>{coffeeStore.name}</p>
-        </div>
-    )
+  return (
+    <div>
+      Coffee Store Page {router.query.id}
+      <Link href="/">
+        <a>Back to home</a>
+      </Link>
+      <Link href="/coffee-store/dynamic">
+        <a>Go to page dynamic</a>
+      </Link>
+      <p>{coffeeStore.address}</p>
+      <p>{coffeeStore.name}</p>
+    </div>
+  )
 };
 
 export default CoffeeStore;
