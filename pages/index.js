@@ -5,8 +5,9 @@ import styles from '../styles/Home.module.css';
 //styles file is imported as an object containing the styled components
 
 import Card from '../components/card';
-import coffeeStoresData from '../data/coffee-stores.json';
 import { fetchCoffeeStores } from '../lib/coffee-stores';
+import useTrackLocation from '../hooks/use-track-location';
+import { useEffect } from 'react';
 
 // ServerSideRendered() is syntax for a serverside render
 // getServerSideProps() to fetch then can use data as a prop
@@ -14,8 +15,7 @@ import { fetchCoffeeStores } from '../lib/coffee-stores';
 // This function gets called at build time on server-side.
 // It won't be called on client-side, so you can even do
 // direct database querys.
-export async function getStaticProps(context) {
-  
+export async function getStaticProps(context) {  
   const coffeeStores = await fetchCoffeeStores();
 
   return {
@@ -26,12 +26,29 @@ export async function getStaticProps(context) {
 }
 
 export default function Home(props) {
-  console.log("props", props);
+
+  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } = useTrackLocation();
+
+  /*console.log('latlong', latLong);===*/ console.log({latLong, locationErrorMsg});
+
+  useEffect(() => {
+    async function setCoffeeStoresByLocation() {
+      if(latLong) {
+        try{
+          const fetchedCoffeeStores = await fetchCoffeeStores(latLong, 30);
+          console.log({fetchedCoffeeStores});
+
+        }catch(error) {
+          console.log('error', error);
+        }
+      }
+    }
+  }, [latLong])
 
   const handleOnBannerClick = () => {
-    console.log('hello i am the banner button')
-  }
-
+    console.log('hello i am the banner button');
+    handleTrackLocation();
+  };
   return (
     <div className={styles.container}>
       <Head>
@@ -42,9 +59,10 @@ export default function Home(props) {
 
       <main className={styles.main}>
         <Banner 
-          buttonText="View stores nearby" 
+          buttonText={isFindingLocation ? "Locating..." : "View stores nearby"}
           handleOnClick={handleOnBannerClick}
         />
+        {locationErrorMsg && <p>Something went wrong: {locationErrorMsg}</p>}
         <div className={styles.heroImage}>
           <Image 
             src="/static/hero-image.png" 
@@ -53,7 +71,7 @@ export default function Home(props) {
           />
         </div>
         {props.coffeeStores.length > 0 && (
-          <>
+          <div className={styles.sectionWrapper}>
             <h2 className={styles.heading2}>Toronto stores</h2>
             <div className={styles.cardLayout}>
               {props.coffeeStores.map( (coffeeStore) => {
@@ -68,7 +86,7 @@ export default function Home(props) {
                 );
               })}
             </div>
-          </>
+          </div>
         )}
       </main>
 
