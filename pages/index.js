@@ -7,7 +7,7 @@ import styles from '../styles/Home.module.css';
 import Card from '../components/card';
 import { fetchCoffeeStores } from '../lib/coffee-stores';
 import useTrackLocation from '../hooks/use-track-location';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // ServerSideRendered() is syntax for a serverside render
 // getServerSideProps() to fetch then can use data as a prop
@@ -29,20 +29,26 @@ export default function Home(props) {
 
   const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } = useTrackLocation();
 
-  /*console.log('latlong', latLong);===*/ console.log({latLong, locationErrorMsg});
+  const [coffeeStores, setCoffeeStores] = useState('');
+  const [coffeeStoresError, setCoffeeStoresError] = useState(null);
 
-  useEffect(() => {
+  console.log({latLong, locationErrorMsg}); /*console.log('latlong', latLong);===*/ 
+
+  useEffect( () => {
     async function setCoffeeStoresByLocation() {
       if(latLong) {
         try{
           const fetchedCoffeeStores = await fetchCoffeeStores(latLong, 30);
           console.log({fetchedCoffeeStores});
+          setCoffeeStores(fetchedCoffeeStores);
 
         }catch(error) {
-          console.log('error', error);
+          console.log({error});
+          setCoffeeStoresError(error.message);
         }
       }
     }
+    setCoffeeStoresByLocation();
   }, [latLong])
 
   const handleOnBannerClick = () => {
@@ -63,6 +69,7 @@ export default function Home(props) {
           handleOnClick={handleOnBannerClick}
         />
         {locationErrorMsg && <p>Something went wrong: {locationErrorMsg}</p>}
+        {coffeeStoresError && <p>Something went wrong: {coffeeStoresError}</p>}
         <div className={styles.heroImage}>
           <Image 
             src="/static/hero-image.png" 
@@ -70,16 +77,20 @@ export default function Home(props) {
             width={700} height={400} 
           />
         </div>
-        {props.coffeeStores.length > 0 && (
+
+        {coffeeStores.length > 0 && (
           <div className={styles.sectionWrapper}>
-            <h2 className={styles.heading2}>Toronto stores</h2>
+            <h2 className={styles.heading2}>Stores near me</h2>
             <div className={styles.cardLayout}>
-              {props.coffeeStores.map( (coffeeStore) => {
+              {coffeeStores.map((coffeeStore) => {
                 return (
-                  <Card 
+                  <Card
                     key={coffeeStore.id}
-                    name={coffeeStore.name} 
-                    imgUrl={coffeeStore.imgUrl || "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
+                    name={coffeeStore.name}
+                    imgUrl={
+                      coffeeStore.imgUrl ||
+                      "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+                    }
                     href={`/coffee-store/${coffeeStore.id}`}
                     className={styles.card}
                   />
@@ -88,6 +99,30 @@ export default function Home(props) {
             </div>
           </div>
         )}
+
+        <div className={styles.sectionWrapper}>
+          {props.coffeeStores.length > 0 && (
+            <>
+              <h2 className={styles.heading2}>Toronto stores</h2>
+              <div className={styles.cardLayout}>
+                {props.coffeeStores.map((coffeeStore) => {
+                  return (
+                    <Card
+                      key={coffeeStore.id}
+                      name={coffeeStore.name}
+                      imgUrl={
+                        coffeeStore.imgUrl ||
+                        "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+                      }
+                      href={`/coffee-store/${coffeeStore.id}`}
+                      className={styles.card}
+                    />
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       </main>
 
     </div>

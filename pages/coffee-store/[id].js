@@ -14,20 +14,19 @@ import cls from "classnames";
 import { fetchCoffeeStores } from '../../lib/coffee-stores';
 
 export async function getStaticProps(staticProps) {
-
   const params = staticProps.params;
   console.log('params', params);
 
   const coffeeStores = await fetchCoffeeStores();
-
+  const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+    return (
+      coffeeStore.id.toString() === params.id //dynamic id
+    )
+  });
 
   return {
     props: {
-      coffeeStore: coffeeStores.find((coffeeStore) => {
-        return (
-          coffeeStore.id.toString() === params.id //dynamic id
-        )
-      }),
+      coffeeStore: findCoffeeStoreById ? findCoffeeStoreById : {},
     },
   };
 }
@@ -46,12 +45,12 @@ export async function getStaticPaths() {
   });
 
   return {
-    paths,
     // this is what manually prerendering pages looks like
     /*: [
       { params: { id: '0' } }, 
       { params: { id: '1' } }, 
     ],*/
+    paths,
     fallback: true,
   };
 }
