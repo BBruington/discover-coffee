@@ -12,6 +12,10 @@ import styles from '../../styles/coffee-store.module.css';
 import cls from "classnames";
 
 import { fetchCoffeeStores } from '../../lib/coffee-stores';
+import { useContext, useEffect, useState } from 'react';
+import { StoreContext } from '../../store/store-context';
+
+import { isEmpty } from '../../utils';
 
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
@@ -55,7 +59,7 @@ export async function getStaticPaths() {
   };
 }
 
-const CoffeeStore = (props) => {
+const CoffeeStore = (initialProps) => {
   const router = useRouter();
   
   //console.log('router', router);
@@ -68,12 +72,32 @@ const CoffeeStore = (props) => {
       <div>Loading...</div> 
       )
     };
-    //console.log('props', props);
+    
+    const id = router.query.id;
+
+    const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore)
+
+    const {
+      state: { coffeeStores },
+    } = useContext(StoreContext);
+
+    useEffect(() => {
+      if(isEmpty(initialProps.coffeeStore)){
+        if(coffeeStores.length > 0) {
+          const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+            return (
+              coffeeStore.id.toString() === id //dynamic id
+            )
+          });
+          setCoffeeStore(findCoffeeStoreById);
+        }
+      }
+    }, [id]);
 
     // the address needs to be destrusctured AFTER the 
     // loading state if it wasn't a pre-rendered page
     // otherwise you will return undefined
-    const {name, address, neighborhood, imgUrl} = props.coffeeStore;
+    const {name, address, neighborhood, imgUrl} = coffeeStore;
 
     const handleUpvoteButton = () => {
       console.log('upvote');

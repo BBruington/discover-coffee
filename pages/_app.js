@@ -1,12 +1,14 @@
+import StoreProvider from '../store/store-context'
 import '../styles/globals.css'
+
 
 function MyApp({ Component, pageProps }) {
 
   return(
     <>
-      <Component {...pageProps} />
-      <footer>
-      </footer>
+      <StoreProvider>
+        <Component {...pageProps} />
+      </StoreProvider>
     </>
   )
 }

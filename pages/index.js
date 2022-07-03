@@ -7,7 +7,8 @@ import styles from '../styles/Home.module.css';
 import Card from '../components/card';
 import { fetchCoffeeStores } from '../lib/coffee-stores';
 import useTrackLocation from '../hooks/use-track-location';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { ACTION_TYPES, StoreContext } from '../store/store-context';
 
 // ServerSideRendered() is syntax for a serverside render
 // getServerSideProps() to fetch then can use data as a prop
@@ -27,10 +28,14 @@ export async function getStaticProps(context) {
 
 export default function Home(props) {
 
-  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } = useTrackLocation();
+  const { handleTrackLocation, locationErrorMsg, isFindingLocation } = useTrackLocation();
 
-  const [coffeeStores, setCoffeeStores] = useState('');
+  //const [coffeeStores, setCoffeeStores] = useState('');
   const [coffeeStoresError, setCoffeeStoresError] = useState(null);
+
+  const { dispatch, state } = useContext(StoreContext);
+
+  const { coffeeStores, latLong } = state;
 
   console.log({latLong, locationErrorMsg}); /*console.log('latlong', latLong);===*/ 
 
@@ -40,7 +45,13 @@ export default function Home(props) {
         try{
           const fetchedCoffeeStores = await fetchCoffeeStores(latLong, 30);
           console.log({fetchedCoffeeStores});
-          setCoffeeStores(fetchedCoffeeStores);
+          //setCoffeeStores(fetchedCoffeeStores);
+          dispatch({
+            type: ACTION_TYPES.SET_COFFEE_STORES,
+            payload: {
+              coffeeStores: fetchedCoffeeStores,
+            }
+          })
 
         }catch(error) {
           console.log({error});
@@ -49,7 +60,7 @@ export default function Home(props) {
       }
     }
     setCoffeeStoresByLocation();
-  }, [latLong])
+  }, [latLong, dispatch])
 
   const handleOnBannerClick = () => {
     console.log('hello i am the banner button');
