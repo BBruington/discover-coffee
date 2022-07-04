@@ -61,9 +61,7 @@ export async function getStaticPaths() {
 
 const CoffeeStore = (initialProps) => {
   const router = useRouter();
-  
-  //console.log('router', router);
-  
+  const id = router.query.id;
   // Does route exist in getStaticPaths? If not, return Loading...
   // Then, does route exist in the data? show route if it does,
   // show error if not. //fallback: false auto goes to error
@@ -72,27 +70,25 @@ const CoffeeStore = (initialProps) => {
       <div>Loading...</div> 
       )
     };
-    
-    const id = router.query.id;
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore)
 
-    const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore)
-
-    const {
-      state: { coffeeStores },
-    } = useContext(StoreContext);
-
-    useEffect(() => {
-      if(isEmpty(initialProps.coffeeStore)){
-        if(coffeeStores.length > 0) {
-          const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
-            return (
-              coffeeStore.id.toString() === id //dynamic id
-            )
-          });
-          setCoffeeStore(findCoffeeStoreById);
-        }
+  const {
+    state: { coffeeStores },
+  } = useContext(StoreContext);
+  
+  useEffect(() => {
+    if(isEmpty(initialProps.coffeeStore)){
+      if(coffeeStores.length > 0) {
+        const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+          return (
+            coffeeStore.id.toString() === id //dynamic id
+          )
+        });
+        setCoffeeStore(findCoffeeStoreById);
       }
-    }, [id]);
+    }
+  }, [id]);  
+  //console.log('router', router);
 
     // the address needs to be destrusctured AFTER the 
     // loading state if it wasn't a pre-rendered page
