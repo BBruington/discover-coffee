@@ -130,8 +130,11 @@ const CoffeeStore = (initialProps) => {
     // otherwise you will return undefined
     const {name, address, neighborhood, imgUrl} = coffeeStore;
 
+    const [votingCount, setVotingCount] = useState(0);
+
     const handleUpvoteButton = () => {
-      console.log('upvote');
+      let count = votingCount + 1;
+      setVotingCount(count);
     };
     
   return (
@@ -182,7 +185,7 @@ const CoffeeStore = (initialProps) => {
               width='24' height='24' 
               alt={`star icon`}
             />
-            <p className={styles.text}>1</p>
+            <p className={styles.text}>{votingCount}</p>
           </div>
 
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
