@@ -6,7 +6,7 @@ import Link from "next/link";
 import Head from 'next/head';
 import Image from 'next/image';
 
-import coffeeStoreData from "../../data/coffee-stores.json";
+import useSWR from 'swr';
 
 import styles from '../../styles/coffee-store.module.css';
 import cls from "classnames";
@@ -19,7 +19,6 @@ import { isEmpty } from '../../utils';
 
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
-  console.log('params', params);
 
   const coffeeStores = await fetchCoffeeStores();
   const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
@@ -98,7 +97,6 @@ const CoffeeStore = (initialProps) => {
       });
 
       const dbCoffeeStore = response.json();
-      console.log({dbCoffeeStore})
     }catch(error) {
       console.error("Error with creating the coffee store: ", error);
     }
@@ -125,17 +123,52 @@ const CoffeeStore = (initialProps) => {
   }, [id, initialProps, initialProps.coffeeStore]);  
   //console.log('router', router);
 
-    // the address needs to be destrusctured AFTER the 
-    // loading state if it wasn't a pre-rendered page
-    // otherwise you will return undefined
-    const {name, address, neighborhood, imgUrl} = coffeeStore;
+  // the address needs to be destrusctured AFTER the 
+  // loading state if it wasn't a pre-rendered page
+  // otherwise you will return undefined
+  const {name, address, neighborhood, imgUrl} = coffeeStore;
 
-    const [votingCount, setVotingCount] = useState(0);
+  const [votingCount, setVotingCount] = useState(0);
 
-    const handleUpvoteButton = () => {
-      let count = votingCount + 1;
-      setVotingCount(count);
-    };
+  const fetcher = (url) => fetch(url).then((res) => res.json());
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+
+  
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setCoffeeStore(data[0]);
+      setVotingCount(data[0].voting);
+    }
+
+  }, [data])
+
+  const handleUpvoteButton = async () => {
+
+    try {      
+      const response = await fetch('/api/favoriteCoffeeStoreById', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,           
+        }),
+      });
+
+      const dbCoffeeStore = await response.json();
+
+      if (dbCoffeeStore && dbCoffeeStore.length > 0) {
+        let count = votingCount + 1;
+        setVotingCount(count);
+      }
+    }catch(error) {
+      console.error("Error upvoting the coffee store: ", error);
+    }
+  };
+
+  if (error) {
+    return <div>Something went wrong retrieving coffee store page</div>
+  }
     
   return (
     <div className={styles.layout}>
