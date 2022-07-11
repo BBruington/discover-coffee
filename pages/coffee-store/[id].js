@@ -64,12 +64,8 @@ const CoffeeStore = (initialProps) => {
   // Does route exist in getStaticPaths? If not, return Loading...
   // Then, does route exist in the data? show route if it does,
   // show error if not. //fallback: false auto goes to error
-  if(router.isFallback) {
-    return (
-      <div>Loading...</div> 
-      )
-    };
-  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore)
+
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore || {});
 
   const {
     state: { coffeeStores },
