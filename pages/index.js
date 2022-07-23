@@ -128,7 +128,6 @@ export default function Home(props) {
           )}
         </div>
       </main>
-
     </div>
   )
 }
